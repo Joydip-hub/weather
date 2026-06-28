@@ -1,17 +1,21 @@
 /**
  * WeatherView - Main Application Script
- * Handles UI, API calls, animations, and chart rendering
+ * Enhanced with PWA support, keyboard shortcuts, mobile gestures
  */
 
 class WeatherApp {
     constructor() {
-        this.currentCity = 'New York';
+        this.currentCity = localStorage.getItem('weather_last_city') || 'New York';
         this.weatherData = null;
         this.forecastData = null;
         this.favorites = JSON.parse(localStorage.getItem('weather_favs') || '[]');
         this.theme = localStorage.getItem('weather_theme') || 'light';
         this.chartInstance = null;
         this.toastTimeout = null;
+        this.deferredPrompt = null;
+        this.isOnline = navigator.onLine;
+        this.touchStartX = 0;
+        this.touchEndX = 0;
         this.init();
     }
 
@@ -19,6 +23,10 @@ class WeatherApp {
         this.applyTheme();
         this.setupDOMReferences();
         this.setupEventListeners();
+        this.setupKeyboardShortcuts();
+        this.setupTouchGestures();
+        this.setupOnlineStatus();
+        this.registerServiceWorker();
         this.createParticles();
         this.renderCityList();
         this.loadWeather(this.currentCity);
@@ -57,11 +65,19 @@ class WeatherApp {
             chartContainer: document.getElementById('chartContainer'),
             forecastContainerEl: document.getElementById('forecastContainer'),
             toast: document.getElementById('toast'),
+            installPrompt: document.getElementById('installPrompt'),
+            installBtn: document.getElementById('installBtn'),
+            installDismiss: document.getElementById('installDismiss'),
+            connectionBadge: document.getElementById('connectionBadge'),
+            bottomNav: document.getElementById('bottomNav'),
+            hourlyScrollLeft: document.getElementById('hourlyScrollLeft'),
+            hourlyScrollRight: document.getElementById('hourlyScrollRight'),
+            shortcutsHint: document.getElementById('shortcutsHint'),
         };
     }
 
     setupEventListeners() {
-        // Search
+        // Search input
         this.dom.searchInput.addEventListener('input', (e) => {
             this.debounce(() => this.searchCities(e.target.value), 300)();
         });
@@ -77,6 +93,7 @@ class WeatherApp {
             }
         });
 
+        // Close search on outside click
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.search-container')) {
                 this.dom.searchResults.classList.remove('active');
@@ -84,7 +101,9 @@ class WeatherApp {
         });
 
         // Refresh
-        this.dom.refreshBtn.addEventListener('click', () => this.loadWeather(this.currentCity));
+        this.dom.refreshBtn.addEventListener('click', () => {
+            this.loadWeather(this.currentCity);
+        });
 
         // Favorite
         this.dom.favBtn.addEventListener('click', () => this.toggleFavorite());
@@ -95,6 +114,15 @@ class WeatherApp {
         });
 
         // Close sidebar on main content click (mobile)
+        document.getElementById('mainContent').addEventListener('click', (e) => {
+            if (window.innerWidth <= 992 && this.dom.sidebar.classList.contains('open')) {
+                if (!e.target.closest('.sidebar')) {
+                    this.dom.sidebar.classList.remove('open');
+                }
+            }
+        });
+
+        // City list click
         this.dom.cityList.addEventListener('click', (e) => {
             const item = e.target.closest('.city-item');
             if (item) {
@@ -124,6 +152,221 @@ class WeatherApp {
                 }
             });
         });
+
+        // Bottom navigation (mobile)
+        if (this.dom.bottomNav) {
+            this.dom.bottomNav.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    this.dom.bottomNav.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    const view = item.dataset.view;
+                    this.scrollToSection(view);
+                });
+            });
+        }
+
+        // Hourly scroll buttons
+        if (this.dom.hourlyScrollLeft) {
+            this.dom.hourlyScrollLeft.addEventListener('click', () => {
+                this.dom.hourlyScroll.scrollBy({ left: -200, behavior: 'smooth' });
+            });
+        }
+        if (this.dom.hourlyScrollRight) {
+            this.dom.hourlyScrollRight.addEventListener('click', () => {
+                this.dom.hourlyScroll.scrollBy({ left: 200, behavior: 'smooth' });
+            });
+        }
+
+        // Install PWA prompt
+        if (this.dom.installDismiss) {
+            this.dom.installDismiss.addEventListener('click', () => {
+                this.dom.installPrompt.classList.remove('show');
+                localStorage.setItem('pwa_dismissed', 'true');
+            });
+        }
+        if (this.dom.installBtn) {
+            this.dom.installBtn.addEventListener('click', () => this.installPWA());
+        }
+
+        // Before install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            this.deferredPrompt = e;
+            if (!localStorage.getItem('pwa_dismissed')) {
+                setTimeout(() => this.showInstallPrompt(), 5000);
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            this.deferredPrompt = null;
+            this.dom.installPrompt.classList.remove('show');
+            this.showToast('WeatherView installed successfully!', 'success');
+        });
+    }
+
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+K or Cmd+K - Search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                this.dom.searchInput.focus();
+                this.dom.searchInput.select();
+                this.showShortcutsHint(false);
+            }
+            // Ctrl+R or Cmd+R - Refresh
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                e.preventDefault();
+                this.loadWeather(this.currentCity);
+            }
+            // Ctrl+D or Cmd+D - Dark mode
+            if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+                e.preventDefault();
+                this.toggleTheme();
+            }
+            // Ctrl+F or Cmd+F - Favorite
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                this.toggleFavorite();
+            }
+            // Escape - Close search / hints
+            if (e.key === 'Escape') {
+                this.dom.searchResults.classList.remove('active');
+                this.dom.searchInput.blur();
+                this.showShortcutsHint(false);
+            }
+            // ? - Show shortcuts hint
+            if (e.key === '?' && !e.target.closest('input')) {
+                this.showShortcutsHint();
+            }
+        });
+    }
+
+    setupTouchGestures() {
+        const mainContent = document.getElementById('mainContent');
+
+        mainContent.addEventListener('touchstart', (e) => {
+            this.touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        mainContent.addEventListener('touchend', (e) => {
+            this.touchEndX = e.changedTouches[0].screenX;
+            this.handleSwipe();
+        }, { passive: true });
+
+        // Pull to refresh on mobile
+        let pullStartY = 0;
+        mainContent.addEventListener('touchstart', (e) => {
+            if (mainContent.scrollTop === 0) {
+                pullStartY = e.touches[0].clientY;
+            }
+        }, { passive: true });
+
+        mainContent.addEventListener('touchmove', (e) => {
+            if (mainContent.scrollTop === 0) {
+                const pullDistance = e.touches[0].clientY - pullStartY;
+                if (pullDistance > 80) {
+                    this.loadWeather(this.currentCity);
+                    pullStartY = 0;
+                }
+            }
+        }, { passive: true });
+    }
+
+    handleSwipe() {
+        const SWIPE_THRESHOLD = 80;
+        const diff = this.touchEndX - this.touchStartX;
+
+        if (Math.abs(diff) < SWIPE_THRESHOLD) return;
+
+        if (diff > 0) {
+            // Swipe right - open sidebar on mobile
+            if (window.innerWidth <= 992) {
+                this.dom.sidebar.classList.add('open');
+            }
+        } else {
+            // Swipe left - close sidebar
+            this.dom.sidebar.classList.remove('open');
+        }
+    }
+
+    setupOnlineStatus() {
+        window.addEventListener('online', () => {
+            this.isOnline = true;
+            this.dom.connectionBadge.classList.remove('show');
+            this.showToast('Back online!', 'success');
+        });
+
+        window.addEventListener('offline', () => {
+            this.isOnline = false;
+            this.dom.connectionBadge.classList.add('show');
+            this.showToast('You are offline. Showing cached data.', 'error');
+        });
+    }
+
+    async registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            try {
+                const registration = await navigator.serviceWorker.register('/sw.js', {
+                    scope: '/'
+                });
+                console.log('ServiceWorker registered:', registration.scope);
+            } catch (error) {
+                console.log('ServiceWorker registration failed:', error);
+            }
+        }
+    }
+
+    showInstallPrompt() {
+        if (this.deferredPrompt && this.dom.installPrompt) {
+            this.dom.installPrompt.classList.add('show');
+        }
+    }
+
+    async installPWA() {
+        if (!this.deferredPrompt) {
+            this.showToast('Open browser menu → Add to Home Screen', 'success');
+            return;
+        }
+        this.deferredPrompt.prompt();
+        const result = await this.deferredPrompt.userChoice;
+        if (result.outcome === 'accepted') {
+            this.showToast('Installing WeatherView...', 'success');
+        }
+        this.deferredPrompt = null;
+        this.dom.installPrompt.classList.remove('show');
+    }
+
+    scrollToSection(view) {
+        let target;
+        switch (view) {
+            case 'current':
+                target = document.getElementById('currentWeather');
+                break;
+            case 'forecast':
+                target = document.getElementById('forecastSection');
+                break;
+            case 'hourly':
+                target = document.getElementById('hourlySection');
+                break;
+            case 'search':
+                this.dom.searchInput.focus();
+                this.dom.searchInput.select();
+                return;
+            default:
+                return;
+        }
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    showShortcutsHint(show = true) {
+        if (!this.dom.shortcutsHint) return;
+        if (show) {
+            this.dom.shortcutsHint.classList.toggle('show');
+        } else {
+            this.dom.shortcutsHint.classList.remove('show');
+        }
     }
 
     applyTheme() {
@@ -145,8 +388,9 @@ class WeatherApp {
 
     createParticles() {
         const canvas = document.getElementById('particles-canvas');
-        const count = 30;
+        const count = window.innerWidth < 640 ? 15 : 30;
 
+        canvas.innerHTML = '';
         for (let i = 0; i < count; i++) {
             const particle = document.createElement('div');
             particle.classList.add('particle');
@@ -162,8 +406,14 @@ class WeatherApp {
     }
 
     async loadWeather(city) {
+        if (!this.isOnline) {
+            this.showToast('Cannot refresh while offline', 'error');
+            return;
+        }
+
         this.showLoading(true);
         this.currentCity = city;
+        localStorage.setItem('weather_last_city', city);
 
         try {
             const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
@@ -191,7 +441,9 @@ class WeatherApp {
         const w = this.weatherData;
         if (!w) return;
 
-        // Animate number transitions
+        // Update document title
+        document.title = `${Math.round(w.temperature)}°C ${w.city} - WeatherView`;
+
         this.animateNumber('cityName', w.city, false);
         this.animateNumber('weatherDesc', w.description || w.condition, false);
 
@@ -212,16 +464,14 @@ class WeatherApp {
         this.animateNumberValue(this.dom.windChill, `${Math.round(w.wind_chill)}°C`);
         this.animateNumberValue(this.dom.tempF, `${Math.round(w.temp_f)}°F`);
 
-        // Render forecast
         this.renderForecast();
         this.renderHourly();
         this.renderWeatherTip(w);
-
-        // Update background theme based on weather
         this.updateWeatherTheme(w.condition);
     }
 
     animateNumberValue(element, newValue) {
+        if (!element) return;
         element.style.transition = 'all 0.3s ease';
         element.style.opacity = '0';
         element.style.transform = 'translateY(10px)';
@@ -264,52 +514,46 @@ class WeatherApp {
         if (!canvas) return;
 
         const ctx = canvas.getContext('2d');
-        canvas.width = canvas.parentElement.offsetWidth || 800;
-        canvas.height = 250;
+        const parentWidth = canvas.parentElement.offsetWidth || 800;
+        const dpr = window.devicePixelRatio || 1;
 
-        if (this.chartInstance) {
-            this.chartInstance.destroy();
-        }
+        canvas.width = parentWidth * dpr;
+        canvas.height = 280 * dpr;
+        canvas.style.width = parentWidth + 'px';
+        canvas.style.height = '280px';
+        ctx.scale(dpr, dpr);
 
         const labels = this.forecastData.map(d => d.day_name.substring(0, 3));
         const highs = this.forecastData.map(d => Math.round(d.temp_max));
         const lows = this.forecastData.map(d => Math.round(d.temp_min));
-        const precip = this.forecastData.map(d => Math.round(d.precipitation_probability));
 
         const isDark = this.theme === 'dark';
         const textColor = isDark ? '#94a3b8' : '#5a6b7d';
         const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
 
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, parentWidth, 280);
 
-        const padding = { top: 20, right: 20, bottom: 40, left: 40 };
-        const chartWidth = canvas.width - padding.left - padding.right;
-        const chartHeight = canvas.height - padding.top - padding.bottom;
+        const padding = { top: 25, right: 20, bottom: 45, left: 45 };
+        const chartWidth = parentWidth - padding.left - padding.right;
+        const chartHeight = 280 - padding.top - padding.bottom;
         const pointSpacing = chartWidth / (labels.length - 1);
 
-        // Find min/max for scaling
         const allTemps = [...highs, ...lows];
         const minTemp = Math.min(...allTemps) - 5;
         const maxTemp = Math.max(...allTemps) + 5;
 
-        const scaleY = (val) => {
-            return padding.top + chartHeight - ((val - minTemp) / (maxTemp - minTemp)) * chartHeight;
-        };
-
+        const scaleY = (val) => padding.top + chartHeight - ((val - minTemp) / (maxTemp - minTemp)) * chartHeight;
         const scaleX = (index) => padding.left + index * pointSpacing;
 
-        // Draw grid lines
+        // Grid lines
         ctx.strokeStyle = gridColor;
         ctx.lineWidth = 1;
         for (let i = 0; i <= 4; i++) {
             const y = padding.top + (chartHeight / 4) * i;
             ctx.beginPath();
             ctx.moveTo(padding.left, y);
-            ctx.lineTo(canvas.width - padding.right, y);
+            ctx.lineTo(parentWidth - padding.right, y);
             ctx.stroke();
-
-            // Y-axis label
             const tempVal = maxTemp - ((maxTemp - minTemp) / 4) * i;
             ctx.fillStyle = textColor;
             ctx.font = '11px Inter, sans-serif';
@@ -317,17 +561,13 @@ class WeatherApp {
             ctx.fillText(`${Math.round(tempVal)}°`, padding.left - 8, y + 4);
         }
 
-        // Draw high temp line with gradient fill
+        // High temp area fill
         const highGradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
-        highGradient.addColorStop(0, 'rgba(255, 87, 34, 0.25)');
-        highGradient.addColorStop(1, 'rgba(255, 87, 34, 0.0)');
-
-        // High temp area
+        highGradient.addColorStop(0, isDark ? 'rgba(255,87,34,0.2)' : 'rgba(255,87,34,0.25)');
+        highGradient.addColorStop(1, 'rgba(255,87,34,0.0)');
         ctx.beginPath();
         ctx.moveTo(scaleX(0), scaleY(highs[0]));
-        for (let i = 0; i < highs.length; i++) {
-            ctx.lineTo(scaleX(i), scaleY(highs[i]));
-        }
+        for (let i = 0; i < highs.length; i++) ctx.lineTo(scaleX(i), scaleY(highs[i]));
         ctx.lineTo(scaleX(highs.length - 1), padding.top + chartHeight);
         ctx.lineTo(scaleX(0), padding.top + chartHeight);
         ctx.closePath();
@@ -341,25 +581,19 @@ class WeatherApp {
         ctx.lineJoin = 'round';
         ctx.moveTo(scaleX(0), scaleY(highs[0]));
         for (let i = 1; i < highs.length; i++) {
-            const x = scaleX(i);
-            const y = scaleY(highs[i]);
-            const prevX = scaleX(i - 1);
-            const prevY = scaleY(highs[i - 1]);
-            const cpx = (prevX + x) / 2;
-            ctx.bezierCurveTo(cpx, prevY, cpx, y, x, y);
+            const x = scaleX(i), y = scaleY(highs[i]);
+            const px = scaleX(i - 1), py = scaleY(highs[i - 1]);
+            ctx.bezierCurveTo((px + x) / 2, py, (px + x) / 2, y, x, y);
         }
         ctx.stroke();
 
-        // Low temp area
+        // Low temp area fill
         const lowGradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
-        lowGradient.addColorStop(0, 'rgba(33, 150, 243, 0.25)');
-        lowGradient.addColorStop(1, 'rgba(33, 150, 243, 0.0)');
-
+        lowGradient.addColorStop(0, isDark ? 'rgba(33,150,243,0.2)' : 'rgba(33,150,243,0.25)');
+        lowGradient.addColorStop(1, 'rgba(33,150,243,0.0)');
         ctx.beginPath();
         ctx.moveTo(scaleX(0), scaleY(lows[0]));
-        for (let i = 0; i < lows.length; i++) {
-            ctx.lineTo(scaleX(i), scaleY(lows[i]));
-        }
+        for (let i = 0; i < lows.length; i++) ctx.lineTo(scaleX(i), scaleY(lows[i]));
         ctx.lineTo(scaleX(lows.length - 1), padding.top + chartHeight);
         ctx.lineTo(scaleX(0), padding.top + chartHeight);
         ctx.closePath();
@@ -373,98 +607,76 @@ class WeatherApp {
         ctx.lineJoin = 'round';
         ctx.moveTo(scaleX(0), scaleY(lows[0]));
         for (let i = 1; i < lows.length; i++) {
-            const x = scaleX(i);
-            const y = scaleY(lows[i]);
-            const prevX = scaleX(i - 1);
-            const prevY = scaleY(lows[i - 1]);
-            const cpx = (prevX + x) / 2;
-            ctx.bezierCurveTo(cpx, prevY, cpx, y, x, y);
+            const x = scaleX(i), y = scaleY(lows[i]);
+            const px = scaleX(i - 1), py = scaleY(lows[i - 1]);
+            ctx.bezierCurveTo((px + x) / 2, py, (px + x) / 2, y, x, y);
         }
         ctx.stroke();
 
-        // Draw data points (highs)
-        for (let i = 0; i < highs.length; i++) {
-            const x = scaleX(i);
-            const y = scaleY(highs[i]);
+        // Data points
+        const drawPoints = (data, color) => {
+            for (let i = 0; i < data.length; i++) {
+                const x = scaleX(i), y = scaleY(data[i]);
+                // Glow effect
+                ctx.save();
+                ctx.globalAlpha = 0.3;
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
 
-            // Glow effect
-            const glow = ctx.createRadialGradient(x, y, 0, x, y, 8);
-            glow.addColorStop(0, 'rgba(255, 87, 34, 0.3)');
-            glow.addColorStop(1, 'rgba(255, 87, 34, 0)');
-            ctx.fillStyle = glow;
-            ctx.beginPath();
-            ctx.arc(x, y, 8, 0, Math.PI * 2);
-            ctx.fill();
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+                ctx.fill();
 
-            // Point
-            ctx.fillStyle = '#ff5722';
-            ctx.beginPath();
-            ctx.arc(x, y, 4, 0, Math.PI * 2);
-            ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(x, y, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        };
 
-            ctx.fillStyle = '#fff';
-            ctx.beginPath();
-            ctx.arc(x, y, 2, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Value label
-            ctx.fillStyle = '#ff5722';
-            ctx.font = 'bold 11px Inter, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${highs[i]}°`, x, y - 10);
-        }
-
-        // Draw data points (lows)
-        for (let i = 0; i < lows.length; i++) {
-            const x = scaleX(i);
-            const y = scaleY(lows[i]);
-
-            const glow = ctx.createRadialGradient(x, y, 0, x, y, 8);
-            glow.addColorStop(0, 'rgba(33, 150, 243, 0.3)');
-            glow.addColorStop(1, 'rgba(33, 150, 243, 0)');
-            ctx.fillStyle = glow;
-            ctx.beginPath();
-            ctx.arc(x, y, 8, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#2196f3';
-            ctx.beginPath();
-            ctx.arc(x, y, 4, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#fff';
-            ctx.beginPath();
-            ctx.arc(x, y, 2, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#2196f3';
-            ctx.font = '11px Inter, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${lows[i]}°`, x, y + 18);
-        }
+        drawPoints(highs, '#ff5722');
+        drawPoints(lows, '#2196f3');
 
         // X-axis labels
         ctx.fillStyle = textColor;
         ctx.font = '12px Inter, sans-serif';
         ctx.textAlign = 'center';
         for (let i = 0; i < labels.length; i++) {
-            ctx.fillText(labels[i], scaleX(i), canvas.height - 12);
+            ctx.fillText(labels[i], scaleX(i), 280 - 12);
+        }
+
+        // Values on points (high)
+        for (let i = 0; i < highs.length; i++) {
+            if (i % 2 === 0) {
+                ctx.fillStyle = '#ff5722';
+                ctx.font = 'bold 10px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${highs[i]}°`, scaleX(i), scaleY(highs[i]) - 10);
+            }
+        }
+        // Values on points (low)
+        for (let i = 1; i < lows.length; i += 2) {
+            ctx.fillStyle = '#2196f3';
+            ctx.font = '10px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${lows[i]}°`, scaleX(i), scaleY(lows[i]) + 18);
         }
 
         // Legend
-        const legendX = canvas.width - padding.right - 120;
+        const legendX = parentWidth - padding.right - 120;
         const legendY = padding.top + 5;
-
         ctx.fillStyle = '#ff5722';
         ctx.fillRect(legendX, legendY, 12, 3);
         ctx.fillStyle = textColor;
         ctx.font = '11px Inter, sans-serif';
         ctx.textAlign = 'left';
         ctx.fillText('High', legendX + 18, legendY + 4);
-
         ctx.fillStyle = '#2196f3';
         ctx.fillRect(legendX + 55, legendY, 12, 3);
-        ctx.fillStyle = textColor;
         ctx.fillText('Low', legendX + 73, legendY + 4);
     }
 
@@ -488,8 +700,13 @@ class WeatherApp {
             });
         }
 
-        const items = hours.map(h => `
-            <div class="hourly-item">
+        // Mark current hour
+        hours[0].time = 'Now';
+        hours[0].icon = this.weatherData.icon || '☀️';
+        hours[0].temp = Math.round(this.weatherData.temperature);
+
+        const items = hours.map((h, i) => `
+            <div class="hourly-item ${i === 0 ? 'current' : ''}">
                 <div class="hourly-time">${h.time}</div>
                 <div class="hourly-icon">${h.icon}</div>
                 <div class="hourly-temp">${h.temp}°</div>
@@ -522,7 +739,6 @@ class WeatherApp {
     }
 
     updateWeatherTheme(condition) {
-        // Weather-based background tint handled via CSS classes
         const root = document.documentElement;
         root.classList.remove('weather-sunny', 'weather-cloudy', 'weather-rain', 'weather-snow', 'weather-storm');
         if (['Sunny', 'Clear'].includes(condition)) root.classList.add('weather-sunny');
@@ -554,7 +770,6 @@ class WeatherApp {
                 this.dom.searchResults.innerHTML = html;
                 this.dom.searchResults.classList.add('active');
 
-                // Add click handlers
                 this.dom.searchResults.querySelectorAll('.search-result-item').forEach(item => {
                     item.addEventListener('click', () => {
                         const city = item.dataset.city;
@@ -632,7 +847,7 @@ class WeatherApp {
     updateFavoriteButton() {
         const isFav = this.favorites.includes(this.currentCity);
         this.dom.favBtn.classList.toggle('active', isFav);
-        this.dom.favBtn.title = isFav ? 'Remove from favorites' : 'Add to favorites';
+        this.dom.favBtn.title = isFav ? 'Remove from favorites' : 'Add to favorite';
     }
 
     showLoading(show) {
@@ -653,10 +868,7 @@ class WeatherApp {
     debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
+            const later = () => { clearTimeout(timeout); func(...args); };
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
         };

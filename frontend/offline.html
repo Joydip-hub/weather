@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - WeatherView</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .offline-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 48px 32px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .icon { font-size: 80px; margin-bottom: 16px; }
+        h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+        p { font-size: 16px; opacity: 0.9; margin-bottom: 24px; line-height: 1.5; }
+        .retry-btn {
+            background: white;
+            color: #4f8cff;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .retry-btn:hover { transform: scale(1.05); }
+        .cached-data { margin-top: 24px; font-size: 14px; opacity: 0.7; }
+    </style>
+</head>
+<body>
+    <div class="offline-card">
+        <div class="icon">📡</div>
+        <h1>You're Offline</h1>
+        <p>WeatherView needs an internet connection to fetch live weather data.<br>Please check your connection and try again.</p>
+        <button class="retry-btn" onclick="location.reload()">Try Again</button>
+        <div class="cached-data">Last viewed cities may still be available</div>
+    </div>
+</body>
+</html>

@@ -2,19 +2,65 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <title>WeatherView - Daily Weather Forecast</title>
+    <meta name="description" content="Beautiful daily weather forecast app. Free, fast, and easy to use on any device.">
+    <meta name="theme-color" content="#4f8cff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="WeatherView">
+    <meta name="application-name" content="WeatherView">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
+    <link rel="icon" type="image/png" sizes="72x72" href="/icons/icon-72.png">
+    
+    <!-- Apple splash screen -->
+    <link rel="apple-touch-startup-image" href="/icons/icon-512.png" media="(device-width: 375px)">
+    
+    <!-- Service Worker (registered in app.js) -->
+    
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- iOS PWA status bar fix -->
+    <script>
+        if (window.navigator.standalone) {
+            document.documentElement.classList.add('ios-pwa');
+        }
+    </script>
 </head>
 <body>
     <!-- Animated Background Particles -->
     <div id="particles-canvas"></div>
 
+    <!-- Install PWA Prompt (mobile) -->
+    <div class="install-prompt" id="installPrompt">
+        <div class="install-content">
+            <span class="install-icon">🌤️</span>
+            <div class="install-text">
+                <strong>Install WeatherView</strong>
+                <span>Get weather updates faster</span>
+            </div>
+            <div class="install-actions">
+                <button class="install-dismiss" id="installDismiss">Later</button>
+                <button class="install-btn" id="installBtn">Install</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Main App Container -->
     <div class="app-container">
-        <!-- Sidebar -->
+        <!-- Sidebar (Desktop) -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
@@ -34,8 +80,8 @@
                         <circle cx="11" cy="11" r="8"/>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
-                    <input type="text" id="searchInput" placeholder="Search city..." autocomplete="off">
-                    <button class="search-btn" id="searchBtn">
+                    <input type="search" id="searchInput" placeholder="Search city..." autocomplete="off" enterkeyhint="search">
+                    <button class="search-btn" id="searchBtn" aria-label="Search">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <circle cx="11" cy="11" r="8"/>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -50,6 +96,10 @@
             </nav>
 
             <div class="sidebar-footer">
+                <div class="sidebar-info">
+                    <span class="sidebar-shortcut-info">Ctrl+K  Search</span>
+                    <span class="sidebar-shortcut-info">Ctrl+R  Refresh</span>
+                </div>
                 <div class="theme-toggle">
                     <button id="themeBtn" class="theme-btn" aria-label="Toggle theme">
                         <span class="theme-icon-dark">🌙</span>
@@ -71,7 +121,7 @@
             </div>
 
             <!-- Current Weather Section -->
-            <section class="current-weather" id="currentWeather">
+            <section class="current-weather" id="currentWeather" aria-label="Current weather">
                 <div class="weather-header">
                     <div class="location-info">
                         <h1 class="city-name" id="cityName">--</h1>
@@ -79,7 +129,7 @@
                         <p class="weather-desc" id="weatherDesc">--</p>
                     </div>
                     <div class="weather-actions">
-                        <button class="refresh-btn" id="refreshBtn" aria-label="Refresh weather data">
+                        <button class="refresh-btn" id="refreshBtn" aria-label="Refresh weather data (Ctrl+R)">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                 <polyline points="23 4 23 10 17 10"/>
                                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
@@ -145,34 +195,38 @@
             </section>
 
             <!-- 7-Day Forecast Section -->
-            <section class="forecast-section" id="forecastSection">
+            <section class="forecast-section" id="forecastSection" aria-label="7-day forecast">
                 <div class="section-header">
                     <h2>7-Day Forecast</h2>
                     <div class="forecast-nav">
-                        <button class="forecast-nav-btn active" data-view="cards">Cards</button>
-                        <button class="forecast-nav-btn" data-view="chart">Chart</button>
+                        <button class="forecast-nav-btn active" data-view="cards" aria-label="Card view">Cards</button>
+                        <button class="forecast-nav-btn" data-view="chart" aria-label="Chart view">Chart</button>
                     </div>
                 </div>
                 <div class="forecast-container" id="forecastContainer">
                     <!-- Forecast cards rendered by JS -->
                 </div>
                 <div class="chart-container" id="chartContainer" style="display:none;">
-                    <canvas id="tempChart"></canvas>
+                    <canvas id="tempChart" role="img" aria-label="Temperature chart"></canvas>
                 </div>
             </section>
 
             <!-- Hourly Forecast -->
-            <section class="hourly-section" id="hourlySection">
+            <section class="hourly-section" id="hourlySection" aria-label="Hourly forecast">
                 <div class="section-header">
                     <h2>Hourly Forecast</h2>
+                    <div class="hourly-scroll-actions">
+                        <button class="hourly-scroll-btn" id="hourlyScrollLeft" aria-label="Scroll left">←</button>
+                        <button class="hourly-scroll-btn" id="hourlyScrollRight" aria-label="Scroll right">→</button>
+                    </div>
                 </div>
-                <div class="hourly-scroll" id="hourlyScroll">
+                <div class="hourly-scroll" id="hourlyScroll" role="list" aria-label="Hourly weather">
                     <!-- Hourly items rendered by JS -->
                 </div>
             </section>
 
             <!-- Weather Map / Tip Section -->
-            <section class="tip-section" id="tipSection">
+            <section class="tip-section" id="tipSection" aria-label="Weather tip">
                 <div class="tip-card">
                     <div class="tip-icon">💡</div>
                     <div class="tip-content">
@@ -184,8 +238,43 @@
         </main>
     </div>
 
+    <!-- Bottom Navigation Bar (Mobile) -->
+    <nav class="bottom-nav" id="bottomNav" aria-label="Mobile navigation">
+        <button class="nav-item active" data-view="current" aria-label="Current weather">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <span>Now</span>
+        </button>
+        <button class="nav-item" data-view="forecast" aria-label="7-day forecast">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Week</span>
+        </button>
+        <button class="nav-item" data-view="hourly" aria-label="Hourly forecast">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Hours</span>
+        </button>
+        <button class="nav-item" data-view="search" aria-label="Search cities">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>Search</span>
+        </button>
+    </nav>
+
     <!-- Toast Notification -->
-    <div class="toast" id="toast"></div>
+    <div class="toast" id="toast" role="alert"></div>
+
+    <!-- Connection Status Badge -->
+    <div class="connection-badge" id="connectionBadge">
+        <span>📡</span> You're offline
+    </div>
+
+    <!-- Keyboard Shortcuts Hint -->
+    <div class="shortcuts-hint" id="shortcutsHint">
+        <strong>Keyboard Shortcuts</strong>
+        <div><kbd>Ctrl+K</kbd> Search city</div>
+        <div><kbd>Ctrl+R</kbd> Refresh weather</div>
+        <div><kbd>Ctrl+D</kbd> Toggle dark mode</div>
+        <div><kbd>Ctrl+F</kbd> Toggle favorite</div>
+        <div><kbd>Esc</kbd> Close search</div>
+    </div>
 
     <!-- Scripts -->
     <script src="js/app.js"></script>
