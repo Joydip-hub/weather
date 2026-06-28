@@ -19,10 +19,12 @@ cpp_engine/build/
 cpp_engine/cmake-build*/
 *.o
 *.obj
-*.exe
 *.dll
 *.so
 *.dylib
+
+# But allow built executables in the downloads folder
+!frontend/downloads/*.exe
 
 # Node
 node_modules/
