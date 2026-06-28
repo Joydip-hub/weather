@@ -22,26 +22,49 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
     <link rel="icon" type="image/png" sizes="72x72" href="/icons/icon-72.png">
-    
-    <!-- Apple splash screen -->
-    <link rel="apple-touch-startup-image" href="/icons/icon-512.png" media="(device-width: 375px)">
-    
-    <!-- Service Worker (registered in app.js) -->
-    
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- iOS PWA status bar fix -->
     <script>
-        if (window.navigator.standalone) {
-            document.documentElement.classList.add('ios-pwa');
-        }
+        if (window.navigator.standalone) document.documentElement.classList.add('ios-pwa');
     </script>
 </head>
 <body>
     <!-- Animated Background Particles -->
     <div id="particles-canvas"></div>
+
+    <!-- Welcome Splash Screen (first visit) -->
+    <div class="welcome-splash" id="welcomeSplash">
+        <div class="splash-content">
+            <span class="splash-icon">🌤️</span>
+            <h1 class="splash-title">WeatherView</h1>
+            <p class="splash-subtitle">Beautiful weather forecasts, completely free</p>
+            
+            <div class="splash-cards">
+                <!-- PC Option -->
+                <div class="splash-card" onclick="document.getElementById('welcomeSplash').classList.add('dismissed');setTimeout(()=>document.getElementById('welcomeSplash').style.display='none',400);">
+                    <span class="splash-card-icon">🖥️</span>
+                    <h3>Use on PC</h3>
+                    <p>Open the full weather dashboard with keyboard shortcuts & charts</p>
+                    <span class="splash-btn">Open App →</span>
+                </div>
+                <!-- Mobile Option -->
+                <div class="splash-card" onclick="document.getElementById('welcomeSplash').classList.add('dismissed');setTimeout(()=>document.getElementById('welcomeSplash').style.display='none',400);">
+                    <span class="splash-card-icon">📱</span>
+                    <h3>Use on Mobile</h3>
+                    <p>Install to home screen for an app-like experience</p>
+                    <span class="splash-btn">Continue →</span>
+                </div>
+            </div>
+
+            <div class="splash-footer">
+                <button class="splash-dismiss" onclick="document.getElementById('welcomeSplash').classList.add('dismissed');setTimeout(()=>document.getElementById('welcomeSplash').style.display='none',400);">
+                    Skip — go to weather
+                </button>
+                <p class="splash-features">20+ cities · 7-day forecast · Hourly data · Dark mode</p>
+            </div>
+        </div>
+    </div>
 
     <!-- Install PWA Prompt (mobile) -->
     <div class="install-prompt" id="installPrompt">
@@ -73,32 +96,26 @@
                     <span class="bar"></span>
                 </button>
             </div>
-
             <div class="search-container">
                 <div class="search-box">
                     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <circle cx="11" cy="11" r="8"/>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
                     <input type="search" id="searchInput" placeholder="Search city..." autocomplete="off" enterkeyhint="search">
                     <button class="search-btn" id="searchBtn" aria-label="Search">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <circle cx="11" cy="11" r="8"/>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                         </svg>
                     </button>
                 </div>
                 <div class="search-results" id="searchResults"></div>
             </div>
-
-            <nav class="city-list" id="cityList">
-                <div class="city-list-header">Popular Cities</div>
-            </nav>
-
+            <nav class="city-list" id="cityList"><div class="city-list-header">Popular Cities</div></nav>
             <div class="sidebar-footer">
                 <div class="sidebar-info">
                     <span class="sidebar-shortcut-info">Ctrl+K  Search</span>
                     <span class="sidebar-shortcut-info">Ctrl+R  Refresh</span>
+                    <span class="sidebar-shortcut-info" onclick="window.location='/download'" style="cursor:pointer;color:var(--accent-primary);">📱 Get App</span>
                 </div>
                 <div class="theme-toggle">
                     <button id="themeBtn" class="theme-btn" aria-label="Toggle theme">
@@ -112,7 +129,6 @@
 
         <!-- Main Content -->
         <main class="main-content" id="mainContent">
-            <!-- Loading Overlay -->
             <div class="loading-overlay" id="loadingOverlay">
                 <div class="loader">
                     <div class="loader-circle"></div>
@@ -120,7 +136,6 @@
                 </div>
             </div>
 
-            <!-- Current Weather Section -->
             <section class="current-weather" id="currentWeather" aria-label="Current weather">
                 <div class="weather-header">
                     <div class="location-info">
@@ -131,8 +146,7 @@
                     <div class="weather-actions">
                         <button class="refresh-btn" id="refreshBtn" aria-label="Refresh weather data (Ctrl+R)">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                <polyline points="23 4 23 10 17 10"/>
-                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                                <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
                             </svg>
                         </button>
                         <button class="fav-btn" id="favBtn" aria-label="Toggle favorite">
@@ -142,7 +156,6 @@
                         </button>
                     </div>
                 </div>
-
                 <div class="weather-main">
                     <div class="temp-section">
                         <div class="temp-icon" id="weatherIcon">☀️</div>
@@ -150,51 +163,20 @@
                         <div class="temp-feels">Feels like <span id="feelsLike">--°C</span></div>
                     </div>
                     <div class="weather-stats">
-                        <div class="stat-card" data-type="humidity">
-                            <div class="stat-icon">💧</div>
-                            <div class="stat-value"><span id="humidity">--</span>%</div>
-                            <div class="stat-label">Humidity</div>
-                        </div>
-                        <div class="stat-card" data-type="wind">
-                            <div class="stat-icon">🌬️</div>
-                            <div class="stat-value"><span id="windSpeed">--</span> km/h</div>
-                            <div class="stat-label">Wind Speed</div>
-                        </div>
-                        <div class="stat-card" data-type="pressure">
-                            <div class="stat-icon">🔵</div>
-                            <div class="stat-value"><span id="pressure">--</span> hPa</div>
-                            <div class="stat-label">Pressure</div>
-                        </div>
-                        <div class="stat-card" data-type="uv">
-                            <div class="stat-icon">☀️</div>
-                            <div class="stat-value"><span id="uvIndex">--</span></div>
-                            <div class="stat-label">UV Index</div>
-                        </div>
+                        <div class="stat-card" data-type="humidity"><div class="stat-icon">💧</div><div class="stat-value"><span id="humidity">--</span>%</div><div class="stat-label">Humidity</div></div>
+                        <div class="stat-card" data-type="wind"><div class="stat-icon">🌬️</div><div class="stat-value"><span id="windSpeed">--</span> km/h</div><div class="stat-label">Wind Speed</div></div>
+                        <div class="stat-card" data-type="pressure"><div class="stat-icon">🔵</div><div class="stat-value"><span id="pressure">--</span> hPa</div><div class="stat-label">Pressure</div></div>
+                        <div class="stat-card" data-type="uv"><div class="stat-icon">☀️</div><div class="stat-value"><span id="uvIndex">--</span></div><div class="stat-label">UV Index</div></div>
                     </div>
                 </div>
-
-                <!-- Extra Details Grid -->
                 <div class="details-grid">
-                    <div class="detail-item">
-                        <span class="detail-label">Dew Point</span>
-                        <span class="detail-value" id="dewPoint">--°C</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Visibility</span>
-                        <span class="detail-value" id="visibility">-- km</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Wind Chill</span>
-                        <span class="detail-value" id="windChill">--°C</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">°F Equiv.</span>
-                        <span class="detail-value" id="tempF">--°F</span>
-                    </div>
+                    <div class="detail-item"><span class="detail-label">Dew Point</span><span class="detail-value" id="dewPoint">--°C</span></div>
+                    <div class="detail-item"><span class="detail-label">Visibility</span><span class="detail-value" id="visibility">-- km</span></div>
+                    <div class="detail-item"><span class="detail-label">Wind Chill</span><span class="detail-value" id="windChill">--°C</span></div>
+                    <div class="detail-item"><span class="detail-label">°F Equiv.</span><span class="detail-value" id="tempF">--°F</span></div>
                 </div>
             </section>
 
-            <!-- 7-Day Forecast Section -->
             <section class="forecast-section" id="forecastSection" aria-label="7-day forecast">
                 <div class="section-header">
                     <h2>7-Day Forecast</h2>
@@ -203,15 +185,12 @@
                         <button class="forecast-nav-btn" data-view="chart" aria-label="Chart view">Chart</button>
                     </div>
                 </div>
-                <div class="forecast-container" id="forecastContainer">
-                    <!-- Forecast cards rendered by JS -->
-                </div>
+                <div class="forecast-container" id="forecastContainer"></div>
                 <div class="chart-container" id="chartContainer" style="display:none;">
                     <canvas id="tempChart" role="img" aria-label="Temperature chart"></canvas>
                 </div>
             </section>
 
-            <!-- Hourly Forecast -->
             <section class="hourly-section" id="hourlySection" aria-label="Hourly forecast">
                 <div class="section-header">
                     <h2>Hourly Forecast</h2>
@@ -220,12 +199,9 @@
                         <button class="hourly-scroll-btn" id="hourlyScrollRight" aria-label="Scroll right">→</button>
                     </div>
                 </div>
-                <div class="hourly-scroll" id="hourlyScroll" role="list" aria-label="Hourly weather">
-                    <!-- Hourly items rendered by JS -->
-                </div>
+                <div class="hourly-scroll" id="hourlyScroll" role="list" aria-label="Hourly weather"></div>
             </section>
 
-            <!-- Weather Map / Tip Section -->
             <section class="tip-section" id="tipSection" aria-label="Weather tip">
                 <div class="tip-card">
                     <div class="tip-icon">💡</div>
@@ -262,9 +238,7 @@
     <div class="toast" id="toast" role="alert"></div>
 
     <!-- Connection Status Badge -->
-    <div class="connection-badge" id="connectionBadge">
-        <span>📡</span> You're offline
-    </div>
+    <div class="connection-badge" id="connectionBadge"><span>📡</span> You're offline</div>
 
     <!-- Keyboard Shortcuts Hint -->
     <div class="shortcuts-hint" id="shortcutsHint">
@@ -276,7 +250,6 @@
         <div><kbd>Esc</kbd> Close search</div>
     </div>
 
-    <!-- Scripts -->
     <script src="js/app.js"></script>
 </body>
 </html>

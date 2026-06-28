@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherView - Access the App</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f1724 0%, #1a2332 50%, #0f1724 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        .logo-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        h1 {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 36px 28px;
+            border: 1px solid rgba(255,255,255,0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(96,165,250,0.3);
+            box-shadow: 0 12px 40px rgba(96,165,250,0.1);
+        }
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+        }
+        .card h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .card p {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #60a5fa, #818cf8);
+            color: white;
+            box-shadow: 0 4px 20px rgba(96,165,250,0.3);
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(96,165,250,0.4);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.15);
+            transform: scale(1.05);
+        }
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 13px;
+        }
+        .steps {
+            text-align: left;
+            margin-top: 20px;
+            padding: 16px 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+        }
+        .steps h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .steps ol {
+            list-style: none;
+            counter-reset: step;
+        }
+        .steps li {
+            counter-increment: step;
+            padding: 6px 0;
+            font-size: 13px;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .steps li::before {
+            content: counter(step);
+            background: rgba(96,165,250,0.2);
+            color: #60a5fa;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .qr-code {
+            margin: 16px auto;
+            width: 140px;
+            height: 140px;
+            background: white;
+            border-radius: 12px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+        }
+        .footer {
+            text-align: center;
+            font-size: 13px;
+            color: #64748b;
+        }
+        .footer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+        .footer a:hover { text-decoration: underline; }
+        .divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            margin: 24px 0;
+        }
+        @media (max-width: 640px) {
+            .cards { grid-template-columns: 1fr; }
+            h1 { font-size: 28px; }
+            .card { padding: 28px 20px; }
+            .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="logo-icon">🌤️</span>
+            <h1>WeatherView</h1>
+            <p class="subtitle">Beautiful weather forecasts, free for everyone</p>
+        </div>
+
+        <div class="cards">
+            <!-- PC / Desktop Card -->
+            <div class="card">
+                <span class="card-icon">🖥️</span>
+                <h2>For PC / Desktop</h2>
+                <p>Access WeatherView directly in your browser.<br>No installation needed.</p>
+                <a href="/" class="btn btn-primary">
+                    <span>Open Weather App →</span>
+                </a>
+                <div class="steps">
+                    <h3>How it works</h3>
+                    <ol>
+                        <li>Click "Open Weather App" above</li>
+                        <li>Search any city worldwide</li>
+                        <li>View 7-day forecast & hourly data</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Mobile Card -->
+            <div class="card">
+                <span class="card-icon">📱</span>
+                <h2>For Mobile / Phone</h2>
+                <p>Add WeatherView to your home screen as a free app.</p>
+                <button class="btn btn-primary" onclick="window.location='/'">
+                    <span>Open Weather App →</span>
+                </button>
+                <div class="steps">
+                    <h3>Install on your phone</h3>
+                    <ol>
+                        <li><strong>Android:</strong> Chrome menu ⋮ → Add to Home Screen</li>
+                        <li><strong>iPhone:</strong> Safari Share → Add to Home Screen</li>
+                        <li>WeatherView works offline after install!</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Access URL -->
+        <div style="text-align:center;margin-bottom:32px;padding:16px;background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.06);">
+            <p style="font-size:13px;color:#94a3b8;margin-bottom:8px;">Quick access URL</p>
+            <a href="/" style="font-size:18px;font-weight:700;color:#60a5fa;text-decoration:none;" onclick="navigator.clipboard.writeText(window.location.origin);alert('URL copied!')">
+                🌐 weatherview.app
+            </a>
+            <p style="font-size:12px;color:#64748b;margin-top:8px;">(Click to copy — share this link with anyone)</p>
+        </div>
+
+        <hr class="divider">
+
+        <div style="text-align:center;">
+            <h2 style="font-size:18px;font-weight:700;margin-bottom:12px;color:#e2e8f0;">Also available as Desktop App</h2>
+            <p style="font-size:14px;color:#94a3b8;margin-bottom:20px;">Standalone app for Windows, macOS, and Linux</p>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                <a href="/download/WeatherView-Windows.exe" class="btn btn-secondary btn-small">⬇ Windows</a>
+                <a href="/download/WeatherView-Mac.dmg" class="btn btn-secondary btn-small">⬇ macOS</a>
+                <a href="/download/WeatherView-Linux.AppImage" class="btn btn-secondary btn-small">⬇ Linux</a>
+                <a href="https://github.com/Joydip-hub/weather" target="_blank" class="btn btn-secondary btn-small">📦 Source Code</a>
+            </div>
+            <p style="font-size:12px;color:#64748b;margin-top:12px;">Or run with Python: <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;font-size:12px;">python backend/app.py</code></p>
+        </div>
+
+        <hr class="divider">
+
+        <div class="footer">
+            <p>WeatherView is <strong>100% free</strong> and <strong>open source</strong></p>
+            <p style="margin-top:4px;">Built with ❤️ for everyone · <a href="https://github.com/Joydip-hub/weather">GitHub</a></p>
+        </div>
+    </div>
+</body>
+</html>
