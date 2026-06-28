@@ -244,10 +244,11 @@
         <!-- Quick Access URL -->
         <div style="text-align:center;margin-bottom:32px;padding:16px;background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.06);">
             <p style="font-size:13px;color:#94a3b8;margin-bottom:8px;">Quick access URL</p>
-            <a href="/" style="font-size:18px;font-weight:700;color:#60a5fa;text-decoration:none;" onclick="navigator.clipboard.writeText(window.location.origin);alert('URL copied!')">
-                🌐 weatherview.app
+            <a href="/" style="font-size:18px;font-weight:700;color:#60a5fa;text-decoration:none;" onclick="var u=window.location.origin;navigator.clipboard.writeText(u);alert('Copied: '+u)">
+                🌐 <span id="serverUrl">localhost:5000</span>
             </a>
-            <p style="font-size:12px;color:#64748b;margin-top:8px;">(Click to copy — share this link with anyone)</p>
+            <p style="font-size:12px;color:#64748b;margin-top:8px;">(Click to copy — share this link)</p>
+            <script>document.getElementById('serverUrl').textContent=window.location.host;</script>
         </div>
 
         <hr class="divider">
@@ -256,9 +257,9 @@
             <h2 style="font-size:18px;font-weight:700;margin-bottom:12px;color:#e2e8f0;">Also available as Desktop App</h2>
             <p style="font-size:14px;color:#94a3b8;margin-bottom:20px;">Standalone app for Windows, macOS, and Linux</p>
             <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-                <a href="/download/WeatherView-Windows.exe" class="btn btn-secondary btn-small">⬇ Windows</a>
-                <a href="/download/WeatherView-Mac.dmg" class="btn btn-secondary btn-small">⬇ macOS</a>
-                <a href="/download/WeatherView-Linux.AppImage" class="btn btn-secondary btn-small">⬇ Linux</a>
+                <span class="btn btn-secondary btn-small" style="opacity:0.5;cursor:default;">⬇ Windows (soon)</span>
+                <span class="btn btn-secondary btn-small" style="opacity:0.5;cursor:default;">⬇ macOS (soon)</span>
+                <span class="btn btn-secondary btn-small" style="opacity:0.5;cursor:default;">⬇ Linux (soon)</span>
                 <a href="https://github.com/Joydip-hub/weather" target="_blank" class="btn btn-secondary btn-small">📦 Source Code</a>
             </div>
             <p style="font-size:12px;color:#64748b;margin-top:12px;">Or run with Python: <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;font-size:12px;">python backend/app.py</code></p>
