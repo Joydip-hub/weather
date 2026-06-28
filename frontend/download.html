@@ -3,274 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WeatherView - Access the App</title>
+    <title>Get WeatherView - Free Weather App</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f1724 0%, #1a2332 50%, #0f1724 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            padding: 20px;
-        }
-        .container {
-            max-width: 900px;
-            width: 100%;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 48px;
-        }
-        .logo-icon {
-            font-size: 56px;
-            margin-bottom: 12px;
-            display: block;
-        }
-        h1 {
-            font-size: 36px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #60a5fa, #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 8px;
-        }
-        .subtitle {
-            font-size: 16px;
-            color: #94a3b8;
-            font-weight: 400;
-        }
-        .cards {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 40px;
-        }
-        .card {
-            background: rgba(255,255,255,0.06);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 36px 28px;
-            border: 1px solid rgba(255,255,255,0.08);
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(96,165,250,0.3);
-            box-shadow: 0 12px 40px rgba(96,165,250,0.1);
-        }
-        .card-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            display: block;
-        }
-        .card h2 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .card p {
-            font-size: 14px;
-            color: #94a3b8;
-            margin-bottom: 24px;
-            line-height: 1.5;
-        }
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 14px 32px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            font-family: inherit;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #60a5fa, #818cf8);
-            color: white;
-            box-shadow: 0 4px 20px rgba(96,165,250,0.3);
-        }
-        .btn-primary:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 30px rgba(96,165,250,0.4);
-        }
-        .btn-secondary {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.15);
-            transform: scale(1.05);
-        }
-        .btn-small {
-            padding: 10px 20px;
-            font-size: 13px;
-        }
-        .steps {
-            text-align: left;
-            margin-top: 20px;
-            padding: 16px 20px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 12px;
-        }
-        .steps h3 {
-            font-size: 13px;
-            font-weight: 600;
-            color: #94a3b8;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .steps ol {
-            list-style: none;
-            counter-reset: step;
-        }
-        .steps li {
-            counter-increment: step;
-            padding: 6px 0;
-            font-size: 13px;
-            color: #cbd5e1;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .steps li::before {
-            content: counter(step);
-            background: rgba(96,165,250,0.2);
-            color: #60a5fa;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-        .qr-code {
-            margin: 16px auto;
-            width: 140px;
-            height: 140px;
-            background: white;
-            border-radius: 12px;
-            padding: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .qr-code img {
-            width: 100%;
-            height: 100%;
-        }
-        .footer {
-            text-align: center;
-            font-size: 13px;
-            color: #64748b;
-        }
-        .footer a {
-            color: #60a5fa;
-            text-decoration: none;
-        }
-        .footer a:hover { text-decoration: underline; }
-        .divider {
-            border: none;
-            border-top: 1px solid rgba(255,255,255,0.06);
-            margin: 24px 0;
-        }
-        @media (max-width: 640px) {
-            .cards { grid-template-columns: 1fr; }
-            h1 { font-size: 28px; }
-            .card { padding: 28px 20px; }
-            .btn { width: 100%; justify-content: center; }
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#0b1120 0%,#1a2332 50%,#0b1120 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;color:#fff;padding:20px}
+        .container{max-width:1000px;width:100%}
+        .header{text-align:center;margin-bottom:40px}
+        .badge{display:inline-block;background:rgba(96,165,250,0.15);color:#60a5fa;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:16px;border:1px solid rgba(96,165,250,0.2)}
+        h1{font-size:42px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,#60a5fa,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .subtitle{font-size:16px;color:#94a3b8;font-weight:400;line-height:1.5}
+        .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+        .card{background:rgba(255,255,255,0.04);backdrop-filter:blur(12px);border-radius:20px;padding:32px 24px;border:1px solid rgba(255,255,255,0.06);text-align:center;transition:all .4s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden}
+        .card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(96,165,250,0.06),transparent 60%);opacity:0;transition:opacity .4s;pointer-events:none}
+        .card:hover::before{opacity:1}
+        .card:hover{transform:translateY(-6px);border-color:rgba(96,165,250,0.2);box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+        .card-icon{font-size:52px;display:block;margin-bottom:16px}
+        .card h2{font-size:22px;font-weight:700;margin-bottom:6px;background:linear-gradient(135deg,#e2e8f0,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .card p{font-size:14px;color:#64748b;margin-bottom:20px;line-height:1.5}
+        .card .price{font-size:12px;color:#22c55e;margin-bottom:16px;font-weight:600}
+        .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:12px;font-size:15px;font-weight:600;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:all .3s ease;position:relative;overflow:hidden}
+        .btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 30%,rgba(255,255,255,0.1));pointer-events:none}
+        .btn-primary{background:linear-gradient(135deg,#60a5fa,#818cf8);color:#fff;box-shadow:0 4px 20px rgba(96,165,250,0.3)}
+        .btn-primary:hover{transform:scale(1.05);box-shadow:0 8px 30px rgba(96,165,250,0.4)}
+        .btn-success{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 4px 20px rgba(34,197,94,0.3)}
+        .btn-success:hover{transform:scale(1.05);box-shadow:0 8px 30px rgba(34,197,94,0.4)}
+        .btn-secondary{background:rgba(255,255,255,0.08);color:#e2e8f0;border:1px solid rgba(255,255,255,0.1)}
+        .btn-secondary:hover{background:rgba(255,255,255,0.12);transform:scale(1.05)}
+        .btn-small{padding:10px 18px;font-size:13px}.btn-full{width:100%;justify-content:center}
+        .steps{text-align:left;margin-top:16px;padding:16px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid rgba(255,255,255,0.04)}
+        .steps h3{font-size:11px;font-weight:600;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px}
+        .steps ol{list-style:none;counter-reset:s}
+        .steps li{counter-increment:s;padding:5px 0;font-size:13px;color:#94a3b8;display:flex;align-items:center;gap:10px}
+        .steps li::before{content:counter(s);background:rgba(96,165,250,0.15);color:#60a5fa;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+        .downloads{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+        .dl-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:#e2e8f0;text-decoration:none;font-size:13px;font-weight:600;transition:all .3s}
+        .dl-btn:hover{background:rgba(96,165,250,0.15);border-color:rgba(96,165,250,0.2);transform:translateY(-2px)}
+        .dl-btn.active{background:linear-gradient(135deg,rgba(34,197,94,0.15),rgba(22,163,74,0.1));border-color:rgba(34,197,94,0.3)}
+        .url-box{text-align:center;margin-bottom:28px;padding:20px;background:rgba(255,255,255,0.03);border-radius:16px;border:1px solid rgba(255,255,255,0.06)}
+        .url-box p{font-size:12px;color:#64748b;margin-bottom:8px}
+        .url-box a{font-size:20px;font-weight:700;color:#60a5fa;text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;transition:background .2s}
+        .url-box a:hover{background:rgba(96,165,250,0.1)}
+        .url-box .url-hint{font-size:11px;color:#475569;margin-top:6px}
+        .divider{border:none;border-top:1px solid rgba(255,255,255,0.05);margin:24px 0}
+        .footer{text-align:center;font-size:13px;color:#64748b}
+        .footer a{color:#60a5fa;text-decoration:none}
+        .footer a:hover{text-decoration:underline}
+        .footer strong{color:#94a3b8}
+        .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(15,23,42,.95);color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;opacity:0;transition:all .4s cubic-bezier(.68,-.55,.265,1.55);z-index:999;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.08)}
+        .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+        @media(max-width:640px){.grid{grid-template-columns:1fr}.downloads{grid-template-columns:1fr}h1{font-size:32px}.card{padding:24px 16px}.btn{width:100%;justify-content:center}}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <span class="logo-icon">🌤️</span>
-            <h1>WeatherView</h1>
-            <p class="subtitle">Beautiful weather forecasts, free for everyone</p>
+            <span class="badge">100% Free & Open Source</span>
+            <h1>Get WeatherView</h1>
+            <p class="subtitle">Beautiful weather forecasts on any device. No sign-up required.</p>
         </div>
 
-        <div class="cards">
-            <!-- PC / Desktop Card -->
+        <div class="grid">
+            <!-- PC Desktop Card -->
             <div class="card">
                 <span class="card-icon">🖥️</span>
-                <h2>For PC / Desktop</h2>
-                <p>Access WeatherView directly in your browser.<br>No installation needed.</p>
-                <a href="/" class="btn btn-primary">
-                    <span>Open Weather App →</span>
-                </a>
+                <h2>Desktop App</h2>
+                <p>Standalone app for Windows. Open source, portable, no install needed.</p>
+                <div class="price">&#10003; 17 MB download &#10003; Works offline</div>
+                <div class="downloads">
+                    <a href="/downloads/WeatherView-Windows.exe" class="dl-btn active" download>&#11015; Windows</a>
+                    <a href="/downloads/WeatherView-Mac.sh" class="dl-btn" download>&#11015; macOS</a>
+                    <a href="/downloads/WeatherView-Linux.sh" class="dl-btn" download>&#11015; Linux</a>
+                    <a href="https://github.com/Joydip-hub/weather" target="_blank" class="dl-btn">&#128279; Source</a>
+                </div>
                 <div class="steps">
-                    <h3>How it works</h3>
+                    <h3>How to use</h3>
                     <ol>
-                        <li>Click "Open Weather App" above</li>
-                        <li>Search any city worldwide</li>
-                        <li>View 7-day forecast & hourly data</li>
+                        <li>Download the Windows executable above</li>
+                        <li>Double-click to launch (no installation)</li>
+                        <li>Your browser opens with live weather data</li>
                     </ol>
                 </div>
             </div>
 
             <!-- Mobile Card -->
-            <div class="card">
+            <div class="card" id="mobileCard">
                 <span class="card-icon">📱</span>
-                <h2>For Mobile / Phone</h2>
-                <p>Add WeatherView to your home screen as a free app.</p>
-                <button class="btn btn-primary" onclick="window.location='/'">
-                    <span>Open Weather App →</span>
-                </button>
+                <h2>Mobile App</h2>
+                <p>Progressive Web App — works on any phone. Add to home screen.</p>
+                <div class="price">&#10003; No app store &#10003; Works offline &#10003; Free forever</div>
+                <button class="btn btn-success btn-full" id="installMobileBtn">&#128073; Open Weather App</button>
                 <div class="steps">
                     <h3>Install on your phone</h3>
                     <ol>
-                        <li><strong>Android:</strong> Chrome menu ⋮ → Add to Home Screen</li>
-                        <li><strong>iPhone:</strong> Safari Share → Add to Home Screen</li>
-                        <li>WeatherView works offline after install!</li>
+                        <li><strong>Android:</strong> Tap browser menu &#8942; &#8594; Add to Home Screen</li>
+                        <li><strong>iPhone:</strong> Tap Share &#8593; &#8594; Add to Home Screen</li>
+                        <li>Use WeatherView like a native app!</li>
                     </ol>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Access URL -->
-        <div style="text-align:center;margin-bottom:32px;padding:16px;background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.06);">
-            <p style="font-size:13px;color:#94a3b8;margin-bottom:8px;">Quick access URL</p>
-            <a href="/" style="font-size:18px;font-weight:700;color:#60a5fa;text-decoration:none;" onclick="var u=window.location.origin;navigator.clipboard.writeText(u);alert('Copied: '+u)">
-                🌐 <span id="serverUrl">localhost:5000</span>
+        <!-- Quick Access -->
+        <div class="url-box">
+            <p>Quick access URL</p>
+            <a href="/" onclick="copyUrl(event)">
+                &#127760; <span id="serverDisplay">localhost:5000</span>
             </a>
-            <p style="font-size:12px;color:#64748b;margin-top:8px;">(Click to copy — share this link)</p>
-            <script>document.getElementById('serverUrl').textContent=window.location.host;</script>
+            <div class="url-hint">Click to copy — share with anyone</div>
         </div>
 
-        <hr class="divider">
-
-        <div style="text-align:center;">
-            <h2 style="font-size:18px;font-weight:700;margin-bottom:12px;color:#e2e8f0;">Also available as Desktop App</h2>
-            <p style="font-size:14px;color:#94a3b8;margin-bottom:20px;">Standalone app for Windows, macOS, and Linux</p>
-            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-                <span class="btn btn-secondary btn-small" style="opacity:0.5;cursor:default;">⬇ Windows (soon)</span>
-                <span class="btn btn-secondary btn-small" style="opacity:0.5;cursor:default;">⬇ macOS (soon)</span>
-                <span class="btn btn-secondary btn-small" style="opacity:0.5;cursor:default;">⬇ Linux (soon)</span>
-                <a href="https://github.com/Joydip-hub/weather" target="_blank" class="btn btn-secondary btn-small">📦 Source Code</a>
-            </div>
-            <p style="font-size:12px;color:#64748b;margin-top:12px;">Or run with Python: <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;font-size:12px;">python backend/app.py</code></p>
+        <!-- Web Version -->
+        <div style="text-align:center;padding:20px;background:rgba(255,255,255,0.03);border-radius:16px;border:1px solid rgba(255,255,255,0.06);margin-bottom:28px;">
+            <p style="font-size:14px;color:#94a3b8;margin-bottom:12px">Prefer the web version?</p>
+            <a href="/" class="btn btn-primary">&#127760; Open Weather App &#8594;</a>
         </div>
 
         <hr class="divider">
 
         <div class="footer">
-            <p>WeatherView is <strong>100% free</strong> and <strong>open source</strong></p>
-            <p style="margin-top:4px;">Built with ❤️ for everyone · <a href="https://github.com/Joydip-hub/weather">GitHub</a></p>
+            <p>WeatherView is <strong>100% free</strong> and <strong>open source</strong> under MIT license</p>
+            <p style="margin-top:4px">Built with &#10084;&#65039; for everyone &middot; <a href="https://github.com/Joydip-hub/weather">GitHub</a></p>
         </div>
     </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        document.getElementById('serverDisplay').textContent = window.location.host;
+
+        function copyUrl(e) {
+            e.preventDefault();
+            var url = window.location.origin;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(function() {
+                    showToast('URL copied: ' + url);
+                });
+            } else {
+                showToast('URL: ' + url);
+            }
+        }
+
+        function openWeatherApp() {
+            window.location.href = '/';
+        }
+
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(window.tt);
+            window.tt = setTimeout(function() { t.classList.remove('show'); }, 3000);
+        }
+
+        // Register service worker only if not already registered
+        if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').catch(function() {});
+            });
+        }
+
+        // PWA install handler for mobile
+        var deferredPrompt = null;
+        var installBtn = document.getElementById('installMobileBtn');
+        
+        // Handle browser-native install prompt
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installBtn) {
+                installBtn.textContent = '+ Install WeatherView';
+            }
+        });
+        
+        // Click handler for the install button
+        if (installBtn) {
+            installBtn.addEventListener('click', function() {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then(function() { 
+                        deferredPrompt = null; 
+                        installBtn.textContent = 'Open Weather App';
+                    });
+                } else {
+                    window.location.href = '/';
+                }
+            });
+        }
+
+        window.addEventListener('appinstalled', function() {
+            showToast('WeatherView installed successfully!');
+        });
+    </script>
 </body>
 </html>

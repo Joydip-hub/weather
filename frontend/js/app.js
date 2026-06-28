@@ -304,7 +304,7 @@ class WeatherApp {
     }
 
     async registerServiceWorker() {
-        if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
             try {
                 const registration = await navigator.serviceWorker.register('/sw.js', {
                     scope: '/'
