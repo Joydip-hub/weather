@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+*.spec
+*.whl
+*.egg
+
+# Virtual Environment
+venv/
+.env
+.venv/
+
+# C++ Build
+cpp_engine/build/
+cpp_engine/cmake-build*/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Node
+node_modules/
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Weather App Cache
+backend/weather_cache.json
+
+# PyInstaller
+desktop/dist/
+desktop/build/
+desktop/*.spec
+
+# Environment
+.env
+*.local

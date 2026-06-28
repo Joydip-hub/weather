@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherView - Daily Weather Forecast</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Animated Background Particles -->
+    <div id="particles-canvas"></div>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">🌤️</span>
+                    <span class="logo-text">WeatherView</span>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+            </div>
+
+            <div class="search-container">
+                <div class="search-box">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search city..." autocomplete="off">
+                    <button class="search-btn" id="searchBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <nav class="city-list" id="cityList">
+                <div class="city-list-header">Popular Cities</div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="theme-toggle">
+                    <button id="themeBtn" class="theme-btn" aria-label="Toggle theme">
+                        <span class="theme-icon-dark">🌙</span>
+                        <span class="theme-icon-light">☀️</span>
+                    </button>
+                </div>
+                <div class="footer-text">Made with ❤️ for everyone</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Loading Overlay -->
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loader">
+                    <div class="loader-circle"></div>
+                    <div class="loader-text">Fetching weather data...</div>
+                </div>
+            </div>
+
+            <!-- Current Weather Section -->
+            <section class="current-weather" id="currentWeather">
+                <div class="weather-header">
+                    <div class="location-info">
+                        <h1 class="city-name" id="cityName">--</h1>
+                        <p class="date-time" id="dateTime">--</p>
+                        <p class="weather-desc" id="weatherDesc">--</p>
+                    </div>
+                    <div class="weather-actions">
+                        <button class="refresh-btn" id="refreshBtn" aria-label="Refresh weather data">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="23 4 23 10 17 10"/>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                            </svg>
+                        </button>
+                        <button class="fav-btn" id="favBtn" aria-label="Toggle favorite">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="weather-main">
+                    <div class="temp-section">
+                        <div class="temp-icon" id="weatherIcon">☀️</div>
+                        <div class="temp-value" id="temperature">--°C</div>
+                        <div class="temp-feels">Feels like <span id="feelsLike">--°C</span></div>
+                    </div>
+                    <div class="weather-stats">
+                        <div class="stat-card" data-type="humidity">
+                            <div class="stat-icon">💧</div>
+                            <div class="stat-value"><span id="humidity">--</span>%</div>
+                            <div class="stat-label">Humidity</div>
+                        </div>
+                        <div class="stat-card" data-type="wind">
+                            <div class="stat-icon">🌬️</div>
+                            <div class="stat-value"><span id="windSpeed">--</span> km/h</div>
+                            <div class="stat-label">Wind Speed</div>
+                        </div>
+                        <div class="stat-card" data-type="pressure">
+                            <div class="stat-icon">🔵</div>
+                            <div class="stat-value"><span id="pressure">--</span> hPa</div>
+                            <div class="stat-label">Pressure</div>
+                        </div>
+                        <div class="stat-card" data-type="uv">
+                            <div class="stat-icon">☀️</div>
+                            <div class="stat-value"><span id="uvIndex">--</span></div>
+                            <div class="stat-label">UV Index</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extra Details Grid -->
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Dew Point</span>
+                        <span class="detail-value" id="dewPoint">--°C</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Visibility</span>
+                        <span class="detail-value" id="visibility">-- km</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Wind Chill</span>
+                        <span class="detail-value" id="windChill">--°C</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">°F Equiv.</span>
+                        <span class="detail-value" id="tempF">--°F</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7-Day Forecast Section -->
+            <section class="forecast-section" id="forecastSection">
+                <div class="section-header">
+                    <h2>7-Day Forecast</h2>
+                    <div class="forecast-nav">
+                        <button class="forecast-nav-btn active" data-view="cards">Cards</button>
+                        <button class="forecast-nav-btn" data-view="chart">Chart</button>
+                    </div>
+                </div>
+                <div class="forecast-container" id="forecastContainer">
+                    <!-- Forecast cards rendered by JS -->
+                </div>
+                <div class="chart-container" id="chartContainer" style="display:none;">
+                    <canvas id="tempChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Hourly Forecast -->
+            <section class="hourly-section" id="hourlySection">
+                <div class="section-header">
+                    <h2>Hourly Forecast</h2>
+                </div>
+                <div class="hourly-scroll" id="hourlyScroll">
+                    <!-- Hourly items rendered by JS -->
+                </div>
+            </section>
+
+            <!-- Weather Map / Tip Section -->
+            <section class="tip-section" id="tipSection">
+                <div class="tip-card">
+                    <div class="tip-icon">💡</div>
+                    <div class="tip-content">
+                        <h3>Weather Tip</h3>
+                        <p id="weatherTip">Loading weather tips...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+</body>
+</html>
