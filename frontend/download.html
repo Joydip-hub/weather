@@ -88,34 +88,37 @@
             <!-- Mobile Card -->
             <div class="card" id="mobileCard">
                 <span class="card-icon">📱</span>
-                <h2>Mobile App</h2>
-                <p>Progressive Web App — works on any phone. Add to home screen.</p>
-                <div class="price">&#10003; No app store &#10003; Works offline &#10003; Free forever</div>
-                <button class="btn btn-success btn-full" id="installMobileBtn">&#128073; Open Weather App</button>
+                <h2>Android APK</h2>
+                <p>Download the APK and install directly on your Android phone.</p>
+                <div class="price">&#10003; Direct install &#10003; No Play Store needed</div>
+                <div class="downloads">
+                    <a href="/downloads/WeatherView-Android.apk" class="dl-btn active" download>&#11015; Download APK</a>
+                    <button class="dl-btn" id="installMobileBtn" style="cursor:pointer">+ Install PWA</button>
+                </div>
                 <div class="steps">
-                    <h3>Install on your phone</h3>
+                    <h3>How to install APK</h3>
                     <ol>
-                        <li><strong>Android:</strong> Tap browser menu &#8942; &#8594; Add to Home Screen</li>
-                        <li><strong>iPhone:</strong> Tap Share &#8593; &#8594; Add to Home Screen</li>
-                        <li>Use WeatherView like a native app!</li>
+                        <li>Download the APK file above</li>
+                        <li>Open the file on your Android phone</li>
+                        <li>Tap "Install" (enable unknown apps if asked)</li>
                     </ol>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Access -->
-        <div class="url-box">
-            <p>Quick access URL</p>
-            <a href="/" onclick="copyUrl(event)">
-                &#127760; <span id="serverDisplay">localhost:5000</span>
-            </a>
-            <div class="url-hint">Click to copy — share with anyone</div>
-        </div>
-
-        <!-- Web Version -->
-        <div style="text-align:center;padding:20px;background:rgba(255,255,255,0.03);border-radius:16px;border:1px solid rgba(255,255,255,0.06);margin-bottom:28px;">
-            <p style="font-size:14px;color:#94a3b8;margin-bottom:12px">Prefer the web version?</p>
-            <a href="/" class="btn btn-primary">&#127760; Open Weather App &#8594;</a>
+        <!-- PC Website Access - SUPER CLEAR -->
+        <div style="text-align:center;margin-bottom:28px;padding:28px;background:linear-gradient(135deg,rgba(96,165,250,0.08),rgba(129,140,248,0.05));border-radius:20px;border:2px solid rgba(96,165,250,0.2);">
+            <div style="font-size:48px;margin-bottom:12px;">🌐</div>
+            <h2 style="font-size:20px;font-weight:700;color:#e2e8f0;margin-bottom:6px;">Visit the Weather App</h2>
+            <p style="font-size:14px;color:#94a3b8;margin-bottom:16px;">Open in any browser — no installation needed</p>
+            <a href="/" class="btn btn-primary" style="font-size:18px;padding:16px 40px;">&#127760; Open WeatherView Now &#8594;</a>
+            <div style="margin-top:16px;padding:12px;background:rgba(0,0,0,0.2);border-radius:10px;">
+                <p style="font-size:12px;color:#64748b;margin-bottom:4px;">Or type this URL in your browser:</p>
+                <a href="/" onclick="copyUrl(event)" style="font-size:22px;font-weight:800;color:#60a5fa;text-decoration:none;display:block;padding:8px;border-radius:6px;transition:background .2s;" onmouseover="this.style.background='rgba(96,165,250,0.1)'" onmouseout="this.style.background='transparent'">
+                    <span id="serverDisplay">localhost:5000</span>
+                </a>
+                <p style="font-size:11px;color:#475569;margin-top:4px;">&#128203; Click to copy the URL</p>
+            </div>
         </div>
 
         <hr class="divider">
